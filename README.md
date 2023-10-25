@@ -5,7 +5,7 @@
 ## Setup
 
 **Requirements:**
-- Python 3 (tested on 3.10.12)
+- Python 3.9.0+ (tested on 3.10.12)
 - pip
 
 **Steps:**
@@ -14,7 +14,7 @@
     `python3 -m venv .venv`
 1. Activate the venv
     
-    `source .venv/bin/activate`
+    `source .venv/bin/activate` (Linux) or `.\.venv\scripts\bin\activate` (Windows)
 1. Install fsrs (spaced repetition library)
     
     `pip install fsrs`
