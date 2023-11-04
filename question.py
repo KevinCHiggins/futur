@@ -7,6 +7,8 @@ QuestionType = Enum("QuestionType", ["guess"])
 
 
 # will generalize later
+# might also be better to generate the question text from the template
+# every time rather than pickle the text
 class GuessQuestion:
     def __init__(self, solution, question):
         self.solution = solution

@@ -1,6 +1,3 @@
-from json import JSONDecodeError
-from json import loads as json_load_string
-
 from exceptions import FatalError
 from question import QuestionType
 
@@ -51,31 +48,28 @@ class Curriculum:
         return value
 
     @classmethod
-    def from_json(cls, raw_json):
+    def from_dict(cls, attributes):
         try:
-            parsed_json = json_load_string(raw_json)
-            data_filename = (parsed_json["data"])
-            try:
-                question_type = QuestionType[parsed_json["type"]]
-            except KeyError as e:
-                raise FatalError(
-                    f"'{e.args[0]}' specified in curriculum file"
-                    " {curriculum_file_path} is not a recognised question type."
-                )
+            data_filename = (attributes["data"])
+            type_text = attributes["type"]
             question_column_names = cls._require_non_empty_list(
-                parsed_json,
+                attributes,
                 "column names"
             )
             row_keys = cls._require_non_empty_list(
-                parsed_json,
+                attributes,
                 "row keys"
             )
-            key_column_name = parsed_json["key column name"]
+            key_column_name = attributes["key column name"]
         except KeyError as e:
             raise FatalError(
                 f"Curriculum is missing expected '{e.args[0]}' attribute.")
-        except JSONDecodeError as e:
-            raise FatalError(f"Could not parse JSON.")
+        try:
+            question_type = QuestionType[type_text]
+        except KeyError as e:
+            raise FatalError(
+                f"'{e.args[0]}' is not a recognised question type."
+            )
         return cls(
             data_filename,
             question_type,

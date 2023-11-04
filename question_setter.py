@@ -3,6 +3,10 @@ from question import GuessQuestion
 
 
 class QuestionSetter:
+    def __init__(self, renamings, template):
+        self.renamings = renamings
+        self.template = template
+
     @staticmethod
     def validate_data_against_curriculum(data, curriculum):
         required_column_names = curriculum.question_column_names + [curriculum.key_column_name]
@@ -34,27 +38,29 @@ class QuestionSetter:
                 " was not found in data.")
         return question_rows
 
-    @staticmethod
-    def _turn_rows_into_questions(selected_rows, column_names, curriculum):
+    def _turn_rows_into_questions(self, selected_rows, column_names, curriculum):
         indices = [column_names.index(name) for name in curriculum.question_column_names]
         questions = []
         for row in selected_rows:
             for index in indices:
                 infinitive = row[0]
                 inflection_to_guess = row[index]
-                inflection_name = column_names[index]
+                inflection_name = self.renamings[column_names[index]]
+                question_text = self.template.format(
+                            infinitive=infinitive,
+                            inflection_name=inflection_name
+                        )
                 questions.append(
                     GuessQuestion(
                         inflection_to_guess,
-                        f"What is '{infinitive}' in the {inflection_name}"
+                        question_text
                     )
                 )
         return questions
 
-    @classmethod
-    def set_questions(cls, verb_data, curriculum):
-        selected_rows = cls._extract_relevant_rows(verb_data, curriculum)
-        return cls._turn_rows_into_questions(
+    def set_questions(self, verb_data, curriculum):
+        selected_rows = self._extract_relevant_rows(verb_data, curriculum)
+        return self._turn_rows_into_questions(
             selected_rows,
             verb_data.metadata,
             curriculum

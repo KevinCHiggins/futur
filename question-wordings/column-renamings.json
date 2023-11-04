@@ -1,0 +1,14 @@
+{
+  "indicative|future|first person singular": "future; 'je...'",
+  "indicative|future|second person singular": "future; 'tu...'",
+  "indicative|future|third person singular": "future; 'il/elle/on...'",
+  "indicative|future|first person plural": "future; 'nous...'",
+  "indicative|future|second person plural": "future; 'vous...'",
+  "indicative|future|third person plural": "future; 'ils/elles...'",
+  "indicative|conditional|first person singular": "conditional; 'vous...'",
+  "indicative|conditional|second person singular": "conditional; 'vous...'",
+  "indicative|conditional|third person singular": "conditional; 'vous...'",
+  "indicative|conditional|first person plural": "conditional; 'vous...'",
+  "indicative|conditional|second person plural": "conditional; 'vous...'",
+  "indicative|conditional|third person plural": "conditional; 'vous...'"
+}

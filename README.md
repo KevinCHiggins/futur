@@ -20,17 +20,21 @@
     `pip install fsrs`
 1. Run the app
     
-    `python3 futur.py`
+    `python3 futur.py future-irregular-top-10.json`
 
 ## Configuration
 
-Create your own curriculum by copying and modifying the JSON files under `/curricula`. You will need to change `DEFAULT_CURRICULUM_FILENAME` in constants.py.
+Create your own curriculum by copying and modifying the JSON files under `curricula`.
+
+Choose which curriculum to examine via the final command line argument when running the program.
+
+Tweak the wording of the questions by modifying `question-wordings/template.txt` and
+`question-wordings/column-renamings.json`. The intention of the latter is to yield more
+naturalistic prompts with a pronoun like "vous" instead of a bunch of grammatical terms.
 
 ## Planned features and changes
 
-- introduce a table of rewordings so the prompt is more like "What is 'manger' in this inflection: 'Vous..."
-- improve and refactor the spitballed performance timing (currently spread across two files) 
-- command line options to at least select which curriculum to use
+- improve and refactor the spitballed performance timing (currently spread across two modules) 
 - a vocabulary question type (would need a separate vocabulary data file), so probably splitting GuessQuestion into GuessVerbQuestion and GuessTranslationQuestion
 - an option to time your typing to parameterise the performance rating
 - a vocabulary list downloaded from the web so that I can update it remotely (w/o making a commit, I mean)

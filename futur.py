@@ -5,49 +5,45 @@ from pathlib import Path
 
 from curriculum import Curriculum
 from exceptions import FatalError
+from file_handling import read, read_lines, unpickle, load_json_from_file, load_csv_from_file
 from question_setter import QuestionSetter
 from question_repetition import QuestionRepetition, calculate_soonest_due_date
+import argparse
 
 from constants import (
     CURRICULA_PATH_SEGMENT,
     DATA_PATH_SEGMENT,
     DEFAULT_CURRICULUM_FILENAME,
-    RECORDS_PATH_SEGMENT, MAX_DATETIME
+    RECORDS_PATH_SEGMENT,
+    QUESTION_WORDINGS_PATH_SEGMENT,
+    COLUMN_RENAMINGS_FILENAME,
+    TEMPLATE_FILENAME, RECORD_FILENAME_TEMPLATE
 )
 from verb_data import VerbData
 
 
-def main(curriculum_filename = DEFAULT_CURRICULUM_FILENAME):
-    curriculum_file_path = Path(
-        CURRICULA_PATH_SEGMENT,
-        curriculum_filename
+def main(curriculum_filename=DEFAULT_CURRICULUM_FILENAME):
+    column_renamings_file_path = Path(QUESTION_WORDINGS_PATH_SEGMENT, COLUMN_RENAMINGS_FILENAME)
+    renamings = load_json_from_file(column_renamings_file_path)
+    question_template_file_path = Path(QUESTION_WORDINGS_PATH_SEGMENT, TEMPLATE_FILENAME)
+    question_template = read(question_template_file_path)
+    curriculum_file_path = Path(CURRICULA_PATH_SEGMENT, curriculum_filename)
+    curriculum = Curriculum.from_dict(load_json_from_file(curriculum_file_path))
+
+    record_filename = RECORD_FILENAME_TEMPLATE.format(
+        base=curriculum_file_path.stem,
+        hash=curriculum.replicable_hash()
     )
-    try:
-        with open(curriculum_file_path, "r") as curriculum_file:
-            curriculum_json = curriculum_file.read()
-            curriculum = Curriculum.from_json(curriculum_json)
-    except FileNotFoundError as e:
-        raise FatalError(f"Curriculum file {curriculum_file_path} not found.")
-    data_file_path = Path(DATA_PATH_SEGMENT, curriculum.data_filename)
-    try:
-        with open(data_file_path, "r", newline="") as data_file:
-            verb_data_csv_lines = data_file.readlines()  # TODO harmonise w/ CSV
-    except FileNotFoundError:
-        raise FatalError(f"Data file {data_file_path} specified in"
-                         f" {curriculum_file_path} does not exist.")
-    record_filename = f"{curriculum_file_path.stem}-{curriculum.replicable_hash()}.pickle"
     record_file_path = Path(RECORDS_PATH_SEGMENT, record_filename)
     if record_file_path.is_file():
-        with open(record_file_path, "rb") as record_file:
-            question_repetitions = pickle.load(record_file)
-            print("Read record of question repetitions for this curriculum.")
-            print(f"Amount of questions: {len(question_repetitions)}")
+        question_repetitions = unpickle(record_file_path)
     else:
-        print("No record found for repetitions of this curriculum's questions.\n"
-              "Generating afresh...")
-        verb_data = VerbData.from_csv(verb_data_csv_lines)
-        QuestionSetter.validate_data_against_curriculum(verb_data, curriculum)
-        questions = QuestionSetter.set_questions(verb_data, curriculum)
+        data_file_path = Path(DATA_PATH_SEGMENT, curriculum.data_filename)
+        verb_metadata, verb_data = load_csv_from_file(data_file_path)
+        verb_data = VerbData(verb_metadata, verb_data)
+        question_setter = QuestionSetter(renamings=renamings, template=question_template)
+        question_setter.validate_data_against_curriculum(verb_data, curriculum)
+        questions = question_setter.set_questions(verb_data, curriculum)
         question_repetitions = [QuestionRepetition(question) for question in questions]
 
     question_repetitions_due = [qr for qr in question_repetitions if qr.is_due()]
@@ -62,8 +58,20 @@ def main(curriculum_filename = DEFAULT_CURRICULUM_FILENAME):
         print("Wrote record of question repetitions for this curriculum.")
 
 
+parser = argparse.ArgumentParser(
+    prog="Futur",
+    description="Spaced repetition verb endings quiz",
+    epilog="You just read the help text."
+)
+parser.add_argument(
+    "curriculum_filename",
+    default=DEFAULT_CURRICULUM_FILENAME,
+    help=f"Enter the filename (no path) of a curriculum file present in {CURRICULA_PATH_SEGMENT}"
+)
+args = parser.parse_args()
+
 try:
-    main()
+    main(curriculum_filename=args.curriculum_filename)
 except FatalError as fe:
     print(str(fe))
     exit(1)
