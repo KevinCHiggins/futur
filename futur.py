@@ -59,12 +59,13 @@ def main(curriculum_filename=DEFAULT_CURRICULUM_FILENAME):
 
 
 parser = argparse.ArgumentParser(
-    prog="Futur",
+    prog="python3 futur.py",
     description="Spaced repetition verb endings quiz",
     epilog="You just read the help text."
 )
 parser.add_argument(
     "curriculum_filename",
+    nargs="?",
     default=DEFAULT_CURRICULUM_FILENAME,
     help=f"Enter the filename (no path) of a curriculum file present in {CURRICULA_PATH_SEGMENT}"
 )
