@@ -3,12 +3,12 @@ from question import GuessQuestion
 
 
 class QuestionSetter:
-    def __init__(self, renamings, template):
+    def __init__(self, renamings, templates):
         self.renamings = renamings
-        self.template = template
+        self.templates = templates
 
     @staticmethod
-    def validate_data_against_curriculum(data, curriculum):
+    def _validate_data_against_curriculum(data, curriculum):
         required_column_names = curriculum.question_column_names + [curriculum.key_column_name]
         all_column_names = data.metadata
         for column_name in required_column_names:
@@ -46,19 +46,17 @@ class QuestionSetter:
                 infinitive = row[0]
                 inflection_to_guess = row[index]
                 inflection_name = self.renamings[column_names[index]]
-                question_text = self.template.format(
-                            infinitive=infinitive,
-                            inflection_name=inflection_name
-                        )
                 questions.append(
                     GuessQuestion(
-                        inflection_to_guess,
-                        question_text
+                        solution=inflection_to_guess,
+                        infinitive=infinitive,
+                        inflection_name=inflection_name,
                     )
                 )
         return questions
 
     def set_questions(self, verb_data, curriculum):
+        self._validate_data_against_curriculum(verb_data, curriculum)
         selected_rows = self._extract_relevant_rows(verb_data, curriculum)
         return self._turn_rows_into_questions(
             selected_rows,

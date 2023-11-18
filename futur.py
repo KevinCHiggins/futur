@@ -6,8 +6,9 @@ from pathlib import Path
 from curriculum import Curriculum
 from exceptions import FatalError
 from file_handling import read, read_lines, unpickle, load_json_from_file, load_csv_from_file
+from question_asker import QuestionAsker
 from question_setter import QuestionSetter
-from question_repetition import QuestionRepetition, calculate_soonest_due_date
+from record_entry import calculate_soonest_due_date, RecordEntry
 import argparse
 
 from constants import (
@@ -17,16 +18,16 @@ from constants import (
     RECORDS_PATH_SEGMENT,
     QUESTION_WORDINGS_PATH_SEGMENT,
     COLUMN_RENAMINGS_FILENAME,
-    TEMPLATE_FILENAME, RECORD_FILENAME_TEMPLATE
+    RECORD_FILENAME_TEMPLATE,
+    TEMPLATES_FILENAME
 )
 from verb_data import VerbData
-
 
 def main(curriculum_filename=DEFAULT_CURRICULUM_FILENAME):
     column_renamings_file_path = Path(QUESTION_WORDINGS_PATH_SEGMENT, COLUMN_RENAMINGS_FILENAME)
     renamings = load_json_from_file(column_renamings_file_path)
-    question_template_file_path = Path(QUESTION_WORDINGS_PATH_SEGMENT, TEMPLATE_FILENAME)
-    question_template = read(question_template_file_path)
+    question_templates_file_path = Path(QUESTION_WORDINGS_PATH_SEGMENT, TEMPLATES_FILENAME)
+    question_templates = load_json_from_file(question_templates_file_path)
     curriculum_file_path = Path(CURRICULA_PATH_SEGMENT, curriculum_filename)
     curriculum = Curriculum.from_dict(load_json_from_file(curriculum_file_path))
 
@@ -36,26 +37,29 @@ def main(curriculum_filename=DEFAULT_CURRICULUM_FILENAME):
     )
     record_file_path = Path(RECORDS_PATH_SEGMENT, record_filename)
     if record_file_path.is_file():
-        question_repetitions = unpickle(record_file_path)
+        record_entries = unpickle(record_file_path)
     else:
         data_file_path = Path(DATA_PATH_SEGMENT, curriculum.data_filename)
         verb_metadata, verb_data = load_csv_from_file(data_file_path)
         verb_data = VerbData(verb_metadata, verb_data)
-        question_setter = QuestionSetter(renamings=renamings, template=question_template)
-        question_setter.validate_data_against_curriculum(verb_data, curriculum)
+        question_setter = QuestionSetter(renamings=renamings, templates=question_templates)
         questions = question_setter.set_questions(verb_data, curriculum)
-        question_repetitions = [QuestionRepetition(question) for question in questions]
+        record_entries = [
+            RecordEntry(question) for question in questions
+        ]
 
-    question_repetitions_due = [qr for qr in question_repetitions if qr.is_due()]
-    random.shuffle(question_repetitions_due)
-    for qr in question_repetitions_due:
-        qr.review()
+    record_entries_due = [re for re in record_entries if re.is_due()]
+    random.shuffle(record_entries_due)
+    question_asker = QuestionAsker(question_templates)
+    for qr in record_entries_due:
+        performance = question_asker.ask(qr.question)
+        qr.reschedule_according_to_performance(performance)
 
-    soonest_due_date = calculate_soonest_due_date(question_repetitions)
+    soonest_due_date = calculate_soonest_due_date(record_entries)
     print(f"The soonest date a question falls due is {soonest_due_date}")
     with open(record_file_path, "wb") as record_file:
-        pickle.dump(question_repetitions, record_file)
-        print("Wrote record of question repetitions for this curriculum.")
+        pickle.dump(record_entries, record_file)
+        print("Wrote record for this curriculum.")
 
 
 parser = argparse.ArgumentParser(

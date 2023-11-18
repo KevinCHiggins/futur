@@ -6,7 +6,7 @@ from constants import MAX_DATETIME
 f = FSRS()
 
 
-class QuestionRepetition:
+class RecordEntry:
     def __init__(self, question):
         self.question = question
 
@@ -27,9 +27,8 @@ class QuestionRepetition:
             return True
         return False
 
-    def review(self):
+    def reschedule_according_to_performance(self, performance):
         rescheduled_cards = f.repeat(self.card, datetime.datetime.now())
-        performance = self.question.pose()
         self.card = rescheduled_cards[performance.rating].card
 
 

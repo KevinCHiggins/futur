@@ -28,12 +28,15 @@ Create your own curriculum by copying and modifying the JSON files under `curric
 
 Choose which curriculum to examine via the final command line argument when running the program.
 
-Tweak the wording of the questions by modifying `question-wordings/template.txt` and
+Tweak the wording of the questions by modifying `question-wordings/templates.json` and
 `question-wordings/column-renamings.json`. The intention of the latter is to yield more
 naturalistic prompts with a pronoun like "vous" instead of a bunch of grammatical terms.
 
 ## Planned features and changes
 
+- friendlier presentation of due date - "today", "tomorrow", "in 5 minutes"
+- better control and options, a quit key, remove debug text
+- multiple-choice questions (with the Question storing many wrong answers, some of which are randomly chosen when it is asked)
 - improve and refactor the spitballed performance timing (currently spread across two modules) 
 - a vocabulary question type (would need a separate vocabulary data file), so probably splitting GuessQuestion into GuessVerbQuestion and GuessTranslationQuestion
 - an option to time your typing to parameterise the performance rating

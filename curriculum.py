@@ -1,5 +1,5 @@
 from exceptions import FatalError
-from question import QuestionType
+from constants import QuestionType
 
 from hashlib import sha256
 
