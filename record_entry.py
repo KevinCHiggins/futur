@@ -1,4 +1,4 @@
-from fsrs import Card, FSRS, Rating
+from fsrs import Card, FSRS
 import datetime
 
 from constants import MAX_DATETIME

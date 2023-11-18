@@ -1,11 +1,10 @@
-import datetime
 import pickle
 import random
 from pathlib import Path
 
 from curriculum import Curriculum
 from exceptions import FatalError
-from file_handling import read, read_lines, unpickle, load_json_from_file, load_csv_from_file
+from file_handling import unpickle, load_json_from_file, load_csv_from_file
 from question_asker import QuestionAsker
 from question_setter import QuestionSetter
 from record_entry import calculate_soonest_due_date, RecordEntry
