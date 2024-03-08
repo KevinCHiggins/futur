@@ -1,7 +1,7 @@
 import pickle
 import random
 from pathlib import Path
-
+import os
 from curriculum import Curriculum
 from exceptions import FatalError
 from file_handling import unpickle, load_json_from_file, load_csv_from_file
@@ -9,6 +9,8 @@ from question_asker import QuestionAsker
 from question_setter import QuestionSetter
 from record_entry import calculate_soonest_due_date, RecordEntry
 import argparse
+import locale
+locale.setlocale(locale.LC_COLLATE, 'fr-FR.utf-8')
 
 from constants import (
     CURRICULA_PATH_SEGMENT,
@@ -18,7 +20,9 @@ from constants import (
     QUESTION_WORDINGS_PATH_SEGMENT,
     COLUMN_RENAMINGS_FILENAME,
     RECORD_FILENAME_TEMPLATE,
-    TEMPLATES_FILENAME
+    TEMPLATES_FILENAME,
+    ROW_GROUPS_PATH_SEGMENT,
+    ROW_GROUPS_FILENAME,
 )
 from verb_data import VerbData
 
@@ -27,8 +31,10 @@ def main(curriculum_filename=DEFAULT_CURRICULUM_FILENAME):
     renamings = load_json_from_file(column_renamings_file_path)
     question_templates_file_path = Path(QUESTION_WORDINGS_PATH_SEGMENT, TEMPLATES_FILENAME)
     question_templates = load_json_from_file(question_templates_file_path)
+    row_groups_file_path = Path(ROW_GROUPS_PATH_SEGMENT, ROW_GROUPS_FILENAME)
+    row_groups = load_json_from_file(row_groups_file_path)
     curriculum_file_path = Path(CURRICULA_PATH_SEGMENT, curriculum_filename)
-    curriculum = Curriculum.from_dict(load_json_from_file(curriculum_file_path))
+    curriculum = Curriculum.from_dict(load_json_from_file(curriculum_file_path), row_groups)
 
     record_filename = RECORD_FILENAME_TEMPLATE.format(
         base=curriculum_file_path.stem,
@@ -56,6 +62,8 @@ def main(curriculum_filename=DEFAULT_CURRICULUM_FILENAME):
 
     soonest_due_date = calculate_soonest_due_date(record_entries)
     print(f"The soonest date a question falls due is {soonest_due_date}")
+    if not os.path.exists(RECORDS_PATH_SEGMENT):
+        os.makedirs(RECORDS_PATH_SEGMENT)
     with open(record_file_path, "wb") as record_file:
         pickle.dump(record_entries, record_file)
         print("Wrote record for this curriculum.")

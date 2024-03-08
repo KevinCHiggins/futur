@@ -48,18 +48,27 @@ class Curriculum:
         return value
 
     @classmethod
-    def from_dict(cls, attributes):
+    def from_dict(cls, attributes, row_groups):
         try:
             data_filename = (attributes["data"])
             type_text = attributes["type"]
             question_column_names = cls._require_non_empty_list(
                 attributes,
-                "column names"
+                "column names",
             )
-            row_keys = cls._require_non_empty_list(
-                attributes,
-                "row keys"
-            )
+            # A bit hacky, we treat a list as containing literal row names, and a string as being the name of a predefined group of rows
+            row_keys_val = attributes.get("row keys")
+            row_keys_type = type(row_keys_val)
+            if row_keys_type == list:
+                row_keys = cls._require_non_empty_list(
+                    attributes,
+                    "row keys",
+                )
+            elif row_keys_type == str:
+                row_keys = cls._require_non_empty_list(
+                    row_groups,
+                    row_keys_val,
+                )
             key_column_name = attributes["key column name"]
         except KeyError as e:
             raise FatalError(

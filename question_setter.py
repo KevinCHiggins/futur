@@ -1,5 +1,6 @@
 from exceptions import FatalError
 from question import GuessQuestion
+import locale
 
 
 class QuestionSetter:
@@ -22,10 +23,11 @@ class QuestionSetter:
         all_column_names = data.metadata
         key_index = all_column_names.index(curriculum.key_column_name)
         # can't think of any need to maintain user's original order
-        sorted_keys = sorted(curriculum.row_keys)
-        sorted_rows = sorted(data.data, key=lambda row: row[key_index])
+        sorted_keys = sorted(curriculum.row_keys, key = locale.strxfrm)
+        sorted_rows = sorted(data.data, key=lambda row: locale.strxfrm(row[key_index]))
         row_keys_index = 0
         question_rows = []
+        print(sorted_keys)
         for data_row_number in range(len(sorted_rows)):
             if sorted_keys[row_keys_index] == sorted_rows[data_row_number][key_index]:
                 question_rows.append(sorted_rows[data_row_number])
@@ -33,6 +35,7 @@ class QuestionSetter:
                 if row_keys_index == len(curriculum.row_keys):
                     break
         if row_keys_index != len(curriculum.row_keys):
+            print(f"row keys index {row_keys_index} {len(curriculum.row_keys)} {len(sorted_rows)}")
             raise FatalError(
                 "One or more primary keys specified in curriculum"
                 " was not found in data.")
