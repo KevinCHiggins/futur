@@ -26,13 +26,13 @@ class Curriculum:
             self,
             data_filename,
             question_type,
-            question_column_names,
+            inflections,
             row_keys,
             key_column_name
     ):
         self.data_filename = data_filename
         self.question_type = question_type
-        self.question_column_names = question_column_names
+        self.inflections = inflections
         self.row_keys = row_keys
         self.key_column_name = key_column_name
 
@@ -52,9 +52,10 @@ class Curriculum:
         try:
             data_filename = (attributes["data"])
             type_text = attributes["type"]
-            question_column_names = cls._require_non_empty_list(
+            # may be list of str or list of lists (when a question type has multiple inflections per question)
+            inflections = cls._require_non_empty_list(
                 attributes,
-                "column names",
+                "inflections",
             )
             # A bit hacky, we treat a list as containing literal row names, and a string as being the name of a predefined group of rows
             row_keys_val = attributes.get("row keys")
@@ -82,6 +83,6 @@ class Curriculum:
         return cls(
             data_filename,
             question_type,
-            question_column_names,
+            inflections,
             row_keys,
             key_column_name)

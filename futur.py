@@ -18,7 +18,7 @@ from constants import (
     DEFAULT_CURRICULUM_FILENAME,
     RECORDS_PATH_SEGMENT,
     QUESTION_WORDINGS_PATH_SEGMENT,
-    COLUMN_RENAMINGS_FILENAME,
+    PRONOUNS_FILENAME,
     RECORD_FILENAME_TEMPLATE,
     TEMPLATES_FILENAME,
     ROW_GROUPS_PATH_SEGMENT,
@@ -27,8 +27,8 @@ from constants import (
 from verb_data import VerbData
 
 def main(curriculum_filename=DEFAULT_CURRICULUM_FILENAME):
-    column_renamings_file_path = Path(QUESTION_WORDINGS_PATH_SEGMENT, COLUMN_RENAMINGS_FILENAME)
-    renamings = load_json_from_file(column_renamings_file_path)
+    pronouns_file_path = Path(QUESTION_WORDINGS_PATH_SEGMENT, PRONOUNS_FILENAME)
+    pronouns = load_json_from_file(pronouns_file_path)
     question_templates_file_path = Path(QUESTION_WORDINGS_PATH_SEGMENT, TEMPLATES_FILENAME)
     question_templates = load_json_from_file(question_templates_file_path)
     row_groups_file_path = Path(ROW_GROUPS_PATH_SEGMENT, ROW_GROUPS_FILENAME)
@@ -47,7 +47,7 @@ def main(curriculum_filename=DEFAULT_CURRICULUM_FILENAME):
         data_file_path = Path(DATA_PATH_SEGMENT, curriculum.data_filename)
         verb_metadata, verb_data = load_csv_from_file(data_file_path)
         verb_data = VerbData(verb_metadata, verb_data)
-        question_setter = QuestionSetter(renamings=renamings, templates=question_templates)
+        question_setter = QuestionSetter(pronouns=pronouns)
         questions = question_setter.set_questions(verb_data, curriculum)
         record_entries = [
             RecordEntry(question) for question in questions

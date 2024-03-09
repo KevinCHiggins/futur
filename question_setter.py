@@ -1,16 +1,16 @@
 from exceptions import FatalError
 from question import GuessQuestion
+from constants import QuestionType
 import locale
 
 
 class QuestionSetter:
-    def __init__(self, renamings, templates):
-        self.renamings = renamings
-        self.templates = templates
+    def __init__(self, pronouns):
+        self.pronouns = pronouns
 
     @staticmethod
     def _validate_data_against_curriculum(data, curriculum):
-        required_column_names = curriculum.question_column_names + [curriculum.key_column_name]
+        required_column_names = curriculum.inflections + [curriculum.key_column_name]
         all_column_names = data.metadata
         for column_name in required_column_names:
             if column_name not in all_column_names:
@@ -22,7 +22,7 @@ class QuestionSetter:
     def _extract_relevant_rows(data, curriculum):
         all_column_names = data.metadata
         key_index = all_column_names.index(curriculum.key_column_name)
-        # can't think of any need to maintain user's original order
+        # can't think of any need to maintain user's original order. Locale needed to sort accents correctly.
         sorted_keys = sorted(curriculum.row_keys, key = locale.strxfrm)
         sorted_rows = sorted(data.data, key=lambda row: locale.strxfrm(row[key_index]))
         row_keys_index = 0
@@ -41,21 +41,11 @@ class QuestionSetter:
                 " was not found in data.")
         return question_rows
 
-    def _turn_rows_into_questions(self, selected_rows, column_names, curriculum):
-        indices = [column_names.index(name) for name in curriculum.question_column_names]
+    def _turn_rows_into_questions(self, selected_verbs_data, column_names, curriculum):
         questions = []
-        for row in selected_rows:
-            for index in indices:
-                infinitive = row[0]
-                inflection_to_guess = row[index]
-                inflection_name = self.renamings[column_names[index]]
-                questions.append(
-                    GuessQuestion(
-                        solution=inflection_to_guess,
-                        infinitive=infinitive,
-                        inflection_name=inflection_name,
-                    )
-                )
+        for verb_data in selected_verbs_data:
+            questions = questions + GuessQuestion.build_combinations(verb_data, column_names, curriculum.inflections, self.pronouns)
+
         return questions
 
     def set_questions(self, verb_data, curriculum):

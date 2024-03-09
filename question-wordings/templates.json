@@ -1,1 +1,2 @@
-{"GuessQuestion": "What is '{infinitive}' in the {inflection_name}"}
+{"GuessQuestion": "What is '{infinitive}' in the {tense}: '{french_pronoun}... '",
+"DistinguishTenseQuestion": "Is this in the {possible_tense[0]} or the {possible_tense[1]}: '{french_pronoun} {inflected_verb}'"}

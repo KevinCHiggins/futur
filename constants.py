@@ -1,14 +1,14 @@
 import datetime
 from enum import Enum
 
-QuestionType = Enum("QuestionType", ["guess"])
+QuestionType = Enum("QuestionType", ["guess", "distinguish-tense"])
 CURRICULA_PATH_SEGMENT = "./curricula"
 DATA_PATH_SEGMENT = "./data"
 DEFAULT_CURRICULUM_FILENAME = "future-irregular-avoir.json"
 RECORDS_PATH_SEGMENT = "./records"
 RECORD_FILENAME_TEMPLATE = "{base}-{hash}.pickle"
 QUESTION_WORDINGS_PATH_SEGMENT = "./question-wordings"
-COLUMN_RENAMINGS_FILENAME = "column-renamings.json"
+PRONOUNS_FILENAME = "pronouns.json"
 ROW_GROUPS_PATH_SEGMENT = "./verb-groups"
 ROW_GROUPS_FILENAME = "verb-groups.json"
 TEMPLATES_FILENAME = "templates.json"

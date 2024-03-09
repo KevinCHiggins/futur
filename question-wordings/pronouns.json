@@ -1,0 +1,8 @@
+{
+  "first person singular": {"French": "je", "English": "I"},
+  "second person singular": {"French": "tu", "English": "you"},
+  "third person singular": {"French": "il/elle/on", "English": "he/her"},
+  "first person plural": {"French": "nous", "English": "we"},
+  "second person plural": {"French": "vous", "English": "yous"},
+  "third person plural": {"French": "ils/elle", "English": "they"}
+}
