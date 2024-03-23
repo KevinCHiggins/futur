@@ -4,5 +4,5 @@
   "third person singular": {"French": "il/elle/on", "English": "he/her"},
   "first person plural": {"French": "nous", "English": "we"},
   "second person plural": {"French": "vous", "English": "yous"},
-  "third person plural": {"French": "ils/elle", "English": "they"}
+  "third person plural": {"French": "ils/elles", "English": "they"}
 }

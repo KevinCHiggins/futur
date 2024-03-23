@@ -1,10 +1,10 @@
 import datetime
 from enum import Enum
 
-QuestionType = Enum("QuestionType", ["guess", "distinguish-tense"])
+QuestionType = Enum("QuestionType", ["guess", "distinguish_tense"])
 CURRICULA_PATH_SEGMENT = "./curricula"
 DATA_PATH_SEGMENT = "./data"
-DEFAULT_CURRICULUM_FILENAME = "future-irregular-avoir.json"
+DEFAULT_CURRICULUM_FILENAME = "dist-future-conditional-avoir.json"
 RECORDS_PATH_SEGMENT = "./records"
 RECORD_FILENAME_TEMPLATE = "{base}-{hash}.pickle"
 QUESTION_WORDINGS_PATH_SEGMENT = "./question-wordings"

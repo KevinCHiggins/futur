@@ -1,16 +1,20 @@
 from exceptions import FatalError
 from question import GuessQuestion
 from constants import QuestionType
+from inflection import Inflection
 import locale
 
 
 class QuestionSetter:
-    def __init__(self, pronouns):
+    def __init__(self, pronouns, question_service):
+
         self.pronouns = pronouns
+        self.question_service = question_service
 
     @staticmethod
     def _validate_data_against_curriculum(data, curriculum):
-        required_column_names = curriculum.inflections + [curriculum.key_column_name]
+        inflections = Inflection.build_possible_inflections(moods=curriculum.moods, tenses=curriculum.tenses)
+        required_column_names = [inflection.as_column_name() for inflection in inflections] + [curriculum.key_column_name]
         all_column_names = data.metadata
         for column_name in required_column_names:
             if column_name not in all_column_names:
@@ -44,7 +48,8 @@ class QuestionSetter:
     def _turn_rows_into_questions(self, selected_verbs_data, column_names, curriculum):
         questions = []
         for verb_data in selected_verbs_data:
-            questions = questions + GuessQuestion.build_combinations(verb_data, column_names, curriculum.inflections, self.pronouns)
+            print(verb_data)
+            questions = questions + self.question_service.build_combinations(question_type=curriculum.question_type, verb_data=verb_data, moods=curriculum.moods, tenses=curriculum.tenses, pronouns=self.pronouns)
 
         return questions
 

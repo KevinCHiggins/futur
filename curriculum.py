@@ -26,13 +26,16 @@ class Curriculum:
             self,
             data_filename,
             question_type,
-            inflections,
+            moods,
+            tenses,
             row_keys,
             key_column_name
     ):
         self.data_filename = data_filename
         self.question_type = question_type
-        self.inflections = inflections
+        self.moods = moods
+        print(moods)
+        self.tenses = tenses
         self.row_keys = row_keys
         self.key_column_name = key_column_name
 
@@ -53,10 +56,15 @@ class Curriculum:
             data_filename = (attributes["data"])
             type_text = attributes["type"]
             # may be list of str or list of lists (when a question type has multiple inflections per question)
-            inflections = cls._require_non_empty_list(
+            tenses = cls._require_non_empty_list(
                 attributes,
-                "inflections",
+                "tenses",
             )
+            moods = cls._require_non_empty_list(
+                attributes,
+                "moods",
+            )
+            print(moods)
             # A bit hacky, we treat a list as containing literal row names, and a string as being the name of a predefined group of rows
             row_keys_val = attributes.get("row keys")
             row_keys_type = type(row_keys_val)
@@ -81,8 +89,9 @@ class Curriculum:
                 f"'{e.args[0]}' is not a recognised question type."
             )
         return cls(
-            data_filename,
-            question_type,
-            inflections,
-            row_keys,
-            key_column_name)
+            data_filename=data_filename,
+            question_type=question_type,
+            moods=moods,
+            tenses=tenses,
+            row_keys=row_keys,
+            key_column_name=key_column_name)

@@ -6,6 +6,9 @@ from curriculum import Curriculum
 from exceptions import FatalError
 from file_handling import unpickle, load_json_from_file, load_csv_from_file
 from question_asker import QuestionAsker
+from question import QuestionService
+from conjugated_verb import ConjugatedVerbService
+from inflection import Inflection
 from question_setter import QuestionSetter
 from record_entry import calculate_soonest_due_date, RecordEntry
 import argparse
@@ -47,7 +50,8 @@ def main(curriculum_filename=DEFAULT_CURRICULUM_FILENAME):
         data_file_path = Path(DATA_PATH_SEGMENT, curriculum.data_filename)
         verb_metadata, verb_data = load_csv_from_file(data_file_path)
         verb_data = VerbData(verb_metadata, verb_data)
-        question_setter = QuestionSetter(pronouns=pronouns)
+        inflections = Inflection.all_from_column_names(verb_metadata)
+        question_setter = QuestionSetter(pronouns=pronouns, question_service=QuestionService(conjugated_verb_service=ConjugatedVerbService(inflections)))
         questions = question_setter.set_questions(verb_data, curriculum)
         record_entries = [
             RecordEntry(question) for question in questions

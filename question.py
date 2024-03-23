@@ -1,6 +1,59 @@
-
-from conjugated_verb import ConjugatedVerb
 from inflection import Inflection
+from constants import QuestionType
+from exceptions import FatalError
+
+class QuestionService:
+    def __init__(self, conjugated_verb_service):
+        self.conjugated_verb_service = conjugated_verb_service
+
+
+# remove column_names
+    def build_combinations(self, question_type, verb_data, moods, tenses, pronouns):
+        questions = []
+
+
+        verb = self.conjugated_verb_service.from_row(verb_data)
+
+        if question_type == QuestionType.guess:
+            selected_inflections = Inflection.build_possible_inflections(moods=moods, tenses=tenses)
+            infinitive = Inflection.from_column_name("infinitive")
+            infinitive_of_verb = verb[infinitive]
+            for selected_inflection in selected_inflections:
+                questions.append(
+                    GuessQuestion(
+                        solution=verb[selected_inflection],
+                        infinitive=infinitive_of_verb,
+                        tense=selected_inflection.tense,
+                        french_pronoun=pronouns[selected_inflection.person]["French"],
+                    )
+                )
+        elif question_type == QuestionType.distinguish_tense:
+            # for now let's assume
+            if len(tenses) != 2:
+                raise FatalError("DistinguishTenseQuestion takes strictly two tenses and one mood for now.")
+            tense_1_inflections = Inflection.build_possible_inflections(moods=[moods[0]], tenses=[tenses[0]])
+            tense_2_inflections = Inflection.build_possible_inflections(moods=[moods[0]], tenses=[tenses[1]])
+            pairs = zip(tense_1_inflections, tense_2_inflections)
+            for pair in pairs:
+                questions.append(
+                    DistinguishTenseQuestion(
+                        solution=tenses[0],
+                        inflected_verb=verb[pair[0]],
+                        possible_tenses=tenses,
+                        french_pronoun=pronouns[pair[0].person]["French"],
+                    )
+                )
+                questions.append(
+                    DistinguishTenseQuestion(
+                        solution=tenses[1],
+                        inflected_verb=verb[pair[1]],
+                        possible_tenses=tenses,
+                        french_pronoun=pronouns[pair[0].person]["French"], # person is the same per pair
+                    )
+                )
+
+
+        return questions
 
 class GuessQuestion:
     def __init__(self, solution, infinitive, tense, french_pronoun):
@@ -16,31 +69,12 @@ class GuessQuestion:
             french_pronoun=self.french_pronoun,
         )
 
-    @classmethod
-    def build_combinations(cls, verb_data, column_names, inflection_names, pronouns):
-        questions = []
-        selected_inflections = [Inflection.from_column_name(name) for name in inflection_names]
-        infinitive = Inflection.from_column_name("infinitive")
 
-        inflections = Inflection.all_from_column_names(column_names) # needed till ConjugatedVerb becomes a service
-        verb = ConjugatedVerb.from_row_and_inflection_descriptions(verb_data, inflections)
-        infinitive_of_verb = verb[infinitive]
-
-        for selected_inflection in selected_inflections:
-            questions.append(
-                cls(
-                    solution=verb[selected_inflection],
-                    infinitive=infinitive_of_verb,
-                    tense=selected_inflection.tense,
-                    french_pronoun=pronouns[selected_inflection.person]["French"],
-                )
-            )
-        return questions
 
 class DistinguishTenseQuestion:
     def __init__(self, solution, inflected_verb, possible_tenses, french_pronoun):
         self.solution = solution
-        self.inflected_verb = inflected_ver
+        self.inflected_verb = inflected_verb
         self.possible_tenses = possible_tenses
         self.french_pronoun = french_pronoun
 
