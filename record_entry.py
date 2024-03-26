@@ -25,6 +25,7 @@ class RecordEntry:
         if self.due_date() < datetime.datetime.now():
             print(f"{self.question} is due!")
             return True
+        print(f"{self.question} not due")
         return False
 
     def reschedule_according_to_performance(self, performance):

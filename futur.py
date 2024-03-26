@@ -58,12 +58,16 @@ def main(curriculum_filename=DEFAULT_CURRICULUM_FILENAME):
         ]
 
     record_entries_due = [re for re in record_entries if re.is_due()]
+    record_entries_not_due = [re for re in record_entries if not re.is_due()]
     random.shuffle(record_entries_due)
+    random.shuffle(record_entries_not_due)
     question_asker = QuestionAsker(question_templates)
     for qr in record_entries_due:
-        performance = question_asker.ask(qr.question)
+        performance = question_asker.ask(qr.question, "")
         qr.reschedule_according_to_performance(performance)
-
+    for qr in record_entries_not_due:
+        performance = question_asker.ask(qr.question, "[NOT DUE]")
+        qr.reschedule_according_to_performance(performance)
     soonest_due_date = calculate_soonest_due_date(record_entries)
     print(f"The soonest date a question falls due is {soonest_due_date}")
     if not os.path.exists(RECORDS_PATH_SEGMENT):

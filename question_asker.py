@@ -1,14 +1,13 @@
 from datetime import datetime
 from performance import Performance
 
-
 class QuestionAsker:
     def __init__(self, templates):
         self.templates = templates
 
-    def ask(self, question):
+    def ask(self, question, prefix):
         question_cls = question.__class__.__name__
-        question_text = question.generate_text(self.templates[question_cls])
+        question_text = prefix + question.generate_text(self.templates[question_cls])
         starting_time = datetime.now()
         print(question_text)
         success = (input() == question.solution)
